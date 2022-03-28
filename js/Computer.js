@@ -10,10 +10,43 @@ class Computer {
     this.height = height;
     this.image = loadImage("./assets/player.png");
 
-        World.add(world, this.body);
+    this.life1 = "green";
+    this.life2 = "green";
+    this.life3 = "green";
+
+    World.add(world, this.body);
   }
 
-   display() {
+  life() {
+    push();
+    textSize(20);
+    fill("white");
+    text("Computer", width - 310, 40);
+
+    fill(this.life1);
+    rect(width - 420, 50, 70, 30);
+    fill(this.life2);
+    rect(width - 350, 50, 70, 30);
+    fill(this.life3);
+    rect(width - 280, 50, 70, 30);
+    pop();
+  }
+
+  reduceLife(archerLife) {
+    if (archerLife === 2) {
+      this.life1 = "red";
+    }
+
+    if (archerLife === 1) {
+      this.life2 = "red";
+    }
+
+    if (archerLife === 0) {
+      this.life3 = "red";
+    }
+  }
+
+  display() {
     var pos = this.body.position;
     var angle = this.body.angle;
     push();

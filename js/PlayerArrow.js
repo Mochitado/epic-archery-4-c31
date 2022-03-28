@@ -1,5 +1,5 @@
 class PlayerArrow {
-  constructor(x, y, width, height) {
+  constructor(x, y, width, height, archerAngle) {
     var options = {
       restitution: 0.8,
       friction: 1.0,
@@ -10,47 +10,59 @@ class PlayerArrow {
     this.height = height;
     this.body = Bodies.rectangle(x, y, this.width, this.height, options);
     this.image = loadImage("./assets/arrow.png");
-    //write a code for defining an array named trajectory
     this.trajectory = [];
-   
-    
+    this.isRemoved = false;
+    this.archerAngle = archerAngle;
+    this.velocity = p5.Vector.fromAngle(archerAngle);
     World.add(world, this.body);
   }
-  shoot(archerAngle) {
-    var velocity = p5.Vector.fromAngle(archerAngle);
-    velocity.mult(20);
-    Matter.Body.setStatic(this.body, false);
-    Matter.Body.setVelocity(this.body, { x: velocity.x, y: velocity.y });
+
+  remove(index, arrows) {
+    this.isRemoved = true;
+    Matter.World.remove(world, this.body);
+    arrows.splice(index, 1);
   }
+
+  shoot(archerAngle) {
+    this.velocity = p5.Vector.fromAngle(archerAngle + PI / 2);
+    this.velocity.mult(25);
+
+    Matter.Body.setVelocity(this.body, {
+      x: this.velocity.x,
+      y: this.velocity.y
+    });
+
+    Matter.Body.setStatic(this.body, false);
+  }
+
   display() {
-      var pos = this.body.position;
-      var angle = this.body.angle;
-  
-      push();
-      translate(pos.x, pos.y);
-      rotate(angle);
-      imageMode(CENTER);
-      image(this.image, 0, 0, this.width, this.height);
-      pop();
+    var tmpAngle;
+    if (this.body.velocity.y === 0) {
+      tmpAngle = this.archerAngle + PI / 2;
+    } else {
+      tmpAngle = Math.atan(this.body.velocity.y / this.body.velocity.x);
+    }
 
-      if (this.body.velocity.x > 0 && this.body.position.x > 400) {
-        var position = [this.body.position.x, this.body.position.y];
-        /****write a correct 
-         code to add the current 
-         position of arrow to 
-        the trajectory array**/
-        this.trajectory.push(position);
-     }
-  
+    Matter.Body.setAngle(this.body, tmpAngle);
 
-      /****write a correct code to add for loop and to display small dots
-           at all the positions stored in trajectory array
-           *******/
-          for(var i = 0; i < this.trajectory.length; i++){
-            fill("white");
-            ellipse(this.trajectory[i][0], this.trajectory[i][1], 5,5);
-          }
-     
-  
+    var pos = this.body.position;
+    var angle = this.body.angle;
+
+    push();
+    translate(pos.x, pos.y);
+    rotate(angle);
+    imageMode(CENTER);
+    image(this.image, 0, 0, this.width, this.height);
+    pop();
+
+    if (this.body.velocity.x > 0 && this.body.position.x > 400) {
+      var position = [this.body.position.x, this.body.position.y];
+      this.trajectory.push(position);
+    }
+
+    for (var i = 0; i < this.trajectory.length; i++) {
+      fill("white");
+      ellipse(this.trajectory[i][0], this.trajectory[i][1], 5, 5);
+    }
   }
 }
